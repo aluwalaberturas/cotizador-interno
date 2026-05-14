@@ -1279,19 +1279,19 @@ async function guardarFoto() {
   const today = new Date();
   const fecha = fmt2(today);
   try {
-    // Enviamos foto + datos al Apps Script
-    await fetch(GAS_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'uploadFoto',
-        num: nroInterno,
-        numPapel: numPapel,
-        cliente: cli,
-        domicilio: dir,
-        fecha: fecha,
-        foto: b64
-      }),
-      headers: { 'Content-Type': 'text/plain' }
+    // Guardamos en Sheets igual que los presupuestos digitales
+    const obs = numPapel ? 'N° papel: ' + numPapel : '';
+    await gsSave({
+      num: nroInterno,
+      fecha: fecha,
+      cliente: cli,
+      tel: '',
+      mail: '',
+      dir: dir,
+      modo: 'Presupuesto Físico',
+      total: 0,
+      items: '📷 Presupuesto en papel',
+      obs: obs
     });
     // Historial local
     const entry = { nroInterno, numPapel, cliente: cli, fecha: today.toLocaleDateString('es-AR') };
