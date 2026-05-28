@@ -555,7 +555,7 @@ const GAS_URL='https://script.google.com/macros/s/AKfycbxZzUgirJtJVcLPxp-IpdVeZr
 
 async function gsGetNextNum(){
   if(!GAS_URL)return;
-  try{const r=await fetch(GAS_URL+'?t='+Date.now(),{redirect:'follow'});const d=await r.json();if(d.nextNum)ordN=d.nextNum-1;}catch(e){console.warn('Sheets no disponible',e);}
+  try{const r=await fetch(GAS_URL+'?t='+Date.now(),{redirect:'follow'});const d=await r.json();if(d.nextNum&&d.nextNum-1>ordN)ordN=d.nextNum-1;}catch(e){console.warn('Sheets no disponible',e);}
 }
 
 async function gsSave(data){
