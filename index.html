@@ -555,13 +555,13 @@ const GAS_URL='https://script.google.com/macros/s/AKfycbxZzUgirJtJVcLPxp-IpdVeZr
 
 async function gsGetNextNum(){
   if(!GAS_URL)return;
-  try{const r=await fetch(GAS_URL+'?t='+Date.now(),{redirect:'follow'});const d=await r.json();if(d.nextNum&&d.nextNum-1>ordN)ordN=d.nextNum-1;}catch(e){console.warn('Sheets no disponible',e);}
+  try{const r=await fetch(GAS_URL+'?t='+Date.now(),{redirect:'follow'});const d=await r.json();if(d.nextNum&&d.nextNum-1>=ordN)ordN=d.nextNum-1;}catch(e){console.warn('Sheets no disponible',e);}
 }
 
 async function gsSave(data){
   if(!GAS_URL)return;
   try{
-    const p=new URLSearchParams({action:'save',fecha:data.fecha,cliente:data.cliente,tel:data.tel||'',mail:data.mail||'',dir:data.dir||'',modo:data.modo,total:Math.round(data.total),items:(data.items||'').substring(0,500),obs:data.obs||''});
+    const p=new URLSearchParams({action:'save',num:data.num||'',fecha:data.fecha,cliente:data.cliente,tel:data.tel||'',mail:data.mail||'',dir:data.dir||'',modo:data.modo,total:Math.round(data.total),items:(data.items||'').substring(0,500),obs:data.obs||''});
     await fetch(GAS_URL+'?'+p.toString(),{redirect:'follow'});
   }catch(e){console.warn('Error guardando en Sheets',e);}
 }
