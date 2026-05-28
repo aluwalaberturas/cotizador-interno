@@ -566,7 +566,48 @@ async function gsSave(data){
   }catch(e){console.warn('Error guardando en Sheets',e);}
 }
 
+// ── SINCRONIZACIÓN DE PRECIOS DESDE SHEETS ──
+const PRECIOS_CACHE_KEY='aluwal_precios_v1';
+const PRECIOS_CACHE_TTL=6*3600*1000; // 6 horas
+
+function applyPrecios(map){
+  PRODS.forEach(p=>{
+    const pr=map[String(p.sku)];
+    if(!pr)return;
+    if(pr.ef!==null&&pr.ef!==undefined)p.ef=pr.ef;
+    if(pr.p1!==null&&pr.p1!==undefined)p.p1=pr.p1;
+    if(pr.c3g!==null&&pr.c3g!==undefined)p.c3g=pr.c3g;
+    if(pr.c3!==null&&pr.c3!==undefined)p.c3=pr.c3;
+    if(pr.c6!==null&&pr.c6!==undefined)p.c6=pr.c6;
+    if(pr.c12!==null&&pr.c12!==undefined)p.c12=pr.c12;
+  });
+  enrichAll();
+}
+
+async function loadPrecios(){
+  if(!GAS_URL)return;
+  try{
+    const cached=localStorage.getItem(PRECIOS_CACHE_KEY);
+    if(cached){
+      const obj=JSON.parse(cached);
+      if(Date.now()-obj.ts<PRECIOS_CACHE_TTL){
+        applyPrecios(obj.data);
+        console.log('✅ Precios desde caché local');
+        return;
+      }
+    }
+    const r=await fetch(GAS_URL+'?action=getPrecios&t='+Date.now(),{redirect:'follow'});
+    const d=await r.json();
+    if(d.ok&&d.precios){
+      applyPrecios(d.precios);
+      localStorage.setItem(PRECIOS_CACHE_KEY,JSON.stringify({ts:Date.now(),data:d.precios}));
+      console.log('✅ Precios actualizados desde Sheets',d.ts);
+    }
+  }catch(e){console.warn('⚠️ No se pudo cargar precios desde Sheets',e);}
+}
+
 gsGetNextNum();
+loadPrecios();
 let isGrom=false;
 let gromFilters={mat:'',esp:'',med:'',tab:'',mar:''};
 let isAlum=false; let alumMarca=''; let alumFilters={width:'',color:'',vidrio:'',model:''};
