@@ -925,13 +925,13 @@ function renderCart(){
 }
 
 function setPago(pk){
-  if(curPago)return; // ya elegido, no se cambia
   curPago=pk;
   cart.forEach(it=>it.pk=pk);
   document.querySelectorAll('.pago-chip').forEach(el=>{
     el.classList.remove('active');
+    el.style.opacity='';
+    el.style.pointerEvents='';
     if(el.dataset.pago===pk)el.classList.add('active');
-    else{el.style.opacity='.35';el.style.pointerEvents='none';}
   });
   const lbl=document.getElementById('pagoMode');
   if(lbl)lbl.textContent=P_LABELS[pk]||'';
