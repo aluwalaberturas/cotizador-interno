@@ -526,7 +526,13 @@ const COLORS = ['Blanco','Negro'];
 let fFilter=null, curTab='B';
 let cart=[];
 const aperturaMap={};
+const medidaMap={};
 function isDoor(p){return p.cat==='Puertas Exterior'||p.cat==='Puertas Interior';}
+function getSizes(p){
+  if(p.cat!=='Puertas Interior')return null;
+  const m=p.nombre.match(/\b(\d+)\/(\d+)\b/);
+  return m?[m[1],m[2]]:null;
+}
 function setApertura(idx,ap){
   aperturaMap[idx]=ap;
   const dBtn=document.getElementById('apD-'+idx);
@@ -534,10 +540,20 @@ function setApertura(idx,ap){
   if(dBtn)dBtn.classList.toggle('active',ap==='D');
   if(iBtn)iBtn.classList.toggle('active',ap==='I');
 }
+function setMedida(idx,m){
+  medidaMap[idx]=m;
+  const sizes=getSizes(PRODS[idx]);
+  if(!sizes)return;
+  sizes.forEach(s=>{
+    const btn=document.getElementById('ms-'+idx+'-'+s);
+    if(btn)btn.classList.toggle('active',s===m);
+  });
+}
 function buildItemLabel(c){
   const p=c.p;
   const ap=c.apertura?(` Apertura ${c.apertura==='D'?'Derecha':'Izquierda'}`):'';
-  if(p.cat==='Puertas Interior') return `Puerta Interior ${p.subcat||''} ${p.nombre||p.sku}${ap}`.trim();
+  const med=c.medida?(` ${c.medida}cm`):'';
+  if(p.cat==='Puertas Interior') return `Puerta Interior ${p.subcat||''} ${p.nombre||p.sku}${med}${ap}`.trim();
   if(p.cat==='Puertas Exterior'){
     if(p.subcat==='Aluminio') return `Puerta Exterior Aluminio ${p.al_marca||''} ${p.color||''} ${p.al_vidrio||''} ${p.display_nombre||p.nombre}${ap}`.trim();
     return `Puerta Exterior ${p.subcat||''} ${p.nombre||p.sku}${ap}`.trim();
@@ -839,12 +855,15 @@ function card(p,q,isP){
     const esP=isDoor(p);
     const apSel=esP?(aperturaMap[pidx]||'D'):'';
     const apHTML=esP?`<div class="apertura-sel"><button class="ap-btn ${apSel==='D'?'active':''}" id="apD-${pidx}" onclick="setApertura(${pidx},'D')">◁ Derecha</button><button class="ap-btn ${apSel==='I'?'active':''}" id="apI-${pidx}" onclick="setApertura(${pidx},'I')">▷ Izquierda</button></div>`:'';
+    const sizes=getSizes(p);
+    const medSel=sizes?(medidaMap[pidx]||sizes[0]):'';
+    const medHTML=sizes?`<div class="apertura-sel">${sizes.map(s=>`<button class="ap-btn ${medSel===s?'active':''}" id="ms-${pidx}-${s}" onclick="setMedida(${pidx},'${s}')">${s} cm</button>`).join('')}</div>`:'';
     if(curPago&&p[curPago]!=null){
-      addBtns=`<div class="add-btns">${apHTML}<button class="btn-add" onclick="addCartPago(${pidx})"><span>Agregar</span><span>${peso(p[curPago])}</span></button></div>`;
+      addBtns=`<div class="add-btns">${medHTML}${apHTML}<button class="btn-add" onclick="addCartPago(${pidx})"><span>Agregar</span><span>${peso(p[curPago])}</span></button></div>`;
     } else if(curPago){
-      addBtns=`<div class="add-btns">${apHTML}<div class="pago-hint">Sin precio en este modo</div></div>`;
+      addBtns=`<div class="add-btns">${medHTML}${apHTML}<div class="pago-hint">Sin precio en este modo</div></div>`;
     } else {
-      addBtns=`<div class="add-btns">${apHTML}<div class="pago-hint">Elegí un medio de pago ↑</div></div>`;
+      addBtns=`<div class="add-btns">${medHTML}${apHTML}<div class="pago-hint">Elegí un medio de pago ↑</div></div>`;
     }
   }
 
@@ -879,19 +898,19 @@ function clrB(){document.getElementById('sB').value='';refresh('B')}
 function clrP(){document.getElementById('sP').value='';refresh('P')}
 
 // ── CART ──
-function addCartIdx(idx,pk,ap){ addCart(PRODS[idx],pk,ap); }
-function addCart(p,pk,ap){
-  const aKey=ap||'';
-  const ex=cart.find(c=>c.p.sku===p.sku&&c.pk===pk&&c.apertura===aKey);
-  if(ex)ex.qty++;else cart.push({p,pk,qty:1,apertura:aKey});
+function addCartIdx(idx,pk,ap,med){ addCart(PRODS[idx],pk,ap,med); }
+function addCart(p,pk,ap,med){
+  const aKey=ap||'';const mKey=med||'';
+  const ex=cart.find(c=>c.p.sku===p.sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey);
+  if(ex)ex.qty++;else cart.push({p,pk,qty:1,apertura:aKey,medida:mKey});
   renderCart();
 }
-function rmCart(sku,pk,ap){const aKey=ap||'';cart=cart.filter(c=>!(c.p.sku===sku&&c.pk===pk&&c.apertura===aKey));renderCart()}
-function chgQty(sku,pk,ap,d){
-  const aKey=ap||'';
-  const it=cart.find(c=>c.p.sku===sku&&c.pk===pk&&c.apertura===aKey);
+function rmCart(sku,pk,ap,med){const aKey=ap||'';const mKey=med||'';cart=cart.filter(c=>!(c.p.sku===sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey));renderCart()}
+function chgQty(sku,pk,ap,med,d){
+  const aKey=ap||'';const mKey=med||'';
+  const it=cart.find(c=>c.p.sku===sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey);
   if(!it)return;it.qty+=d;
-  if(it.qty<=0)rmCart(sku,pk,aKey);else renderCart();
+  if(it.qty<=0)rmCart(sku,pk,aKey,mKey);else renderCart();
 }
 function clrCart(){cart=[];renderCart()}
 
@@ -906,19 +925,20 @@ function renderCart(){
   cb.innerHTML=cart.map(it=>{
     const chip=`<span class="ci-price-chip" style="${CHIP[it.pk]}">${P_SHORT[it.pk]}</span>`;
     const apLabel=it.apertura?`<span style="font-size:10px;color:var(--acc);font-weight:600"> · Ap. ${it.apertura==='D'?'Derecha':'Izquierda'}</span>`:'';
-    const apKey=it.apertura||'';
+    const medLabel=it.medida?`<span style="font-size:10px;color:var(--acc);font-weight:600"> · ${it.medida}cm</span>`:'';
+    const apKey=it.apertura||'';const mKey=it.medida||'';
     return`<div class="ci">
-      <div class="ci-name">${it.p.display_nombre||it.p.nombre||it.p.sku}${apLabel}</div>
+      <div class="ci-name">${it.p.display_nombre||it.p.nombre||it.p.sku}${medLabel}${apLabel}</div>
       <div class="ci-meta">SKU: ${it.p.sku}</div>
       ${chip}
       <div class="ci-row">
         <div class="qty-wrap">
-          <button class="qb" onclick="chgQty('${it.p.sku}','${it.pk}','${apKey}',-1)">−</button>
+          <button class="qb" onclick="chgQty('${it.p.sku}','${it.pk}','${apKey}','${mKey}',-1)">−</button>
           <span class="qv">${it.qty}</span>
-          <button class="qb" onclick="chgQty('${it.p.sku}','${it.pk}','${apKey}',1)">+</button>
+          <button class="qb" onclick="chgQty('${it.p.sku}','${it.pk}','${apKey}','${mKey}',1)">+</button>
         </div>
         <span class="ci-sub">${peso((it.p[it.pk]||0)*it.qty)}</span>
-        <button class="ci-del" onclick="rmCart('${it.p.sku}','${it.pk}','${apKey}')">✕</button>
+        <button class="ci-del" onclick="rmCart('${it.p.sku}','${it.pk}','${apKey}','${mKey}')">✕</button>
       </div>
     </div>`
   }).join('');
@@ -937,7 +957,7 @@ function setPago(pk){
   if(lbl)lbl.textContent=P_LABELS[pk]||'';
   refresh('P');renderCart();
 }
-function addCartPago(idx){if(!curPago)return;const p=PRODS[idx];const ap=isDoor(p)?(aperturaMap[idx]||'D'):null;addCartIdx(idx,curPago,ap);}
+function addCartPago(idx){if(!curPago)return;const p=PRODS[idx];const ap=isDoor(p)?(aperturaMap[idx]||'D'):null;const sizes=getSizes(p);const med=sizes?(medidaMap[idx]||sizes[0]):'';addCartIdx(idx,curPago,ap,med);}
 
 // ── MODAL ──
 function openModal(){document.getElementById('fOrd').value='B-'+(++ordN);const fm=document.getElementById('fMode');if(fm)fm.value=curPago?P_MODAL[curPago]:'Sin medio de pago seleccionado';document.getElementById('mbg').classList.add('open')}
@@ -964,8 +984,9 @@ function doPrint(){
   const rows=cart.map(c=>{
     const pr=c.p[mode]??c.p[c.pk]??0;
     const apPrint=c.apertura?` · Ap. ${c.apertura==='D'?'Derecha':'Izquierda'}`:'';
+    const medPrint=c.medida?` · ${c.medida}cm`:'';
     return`<tr>
-      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0">${c.p.display_nombre||c.p.nombre||c.p.sku}${apPrint}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0">${c.p.display_nombre||c.p.nombre||c.p.sku}${medPrint}${apPrint}</td>
       <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:center">${c.p.color||'—'}</td>
       <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:center">${c.qty}</td>
       <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;text-align:right">${peso(pr)}</td>
@@ -1057,8 +1078,9 @@ function doPrintUnified(){
   const rowsEst=cart.map(c=>{
     const pr=c.p[mode]??c.p[c.pk]??0;
     const apPrint2=c.apertura?` · Ap. ${c.apertura==='D'?'Derecha':'Izquierda'}`:'';
+    const medPrint2=c.medida?` · ${c.medida}cm`:'';
     return`<tr>
-      <td style="padding:9px 12px;border-bottom:1px solid #e2e8f0">${c.p.display_nombre||c.p.nombre||c.p.sku}${apPrint2}</td>
+      <td style="padding:9px 12px;border-bottom:1px solid #e2e8f0">${c.p.display_nombre||c.p.nombre||c.p.sku}${medPrint2}${apPrint2}</td>
       <td style="padding:9px 8px;border-bottom:1px solid #e2e8f0;text-align:center">${c.p.color||'—'}</td>
       <td style="padding:9px 8px;border-bottom:1px solid #e2e8f0;text-align:center">${c.qty}</td>
       <td style="padding:9px 8px;border-bottom:1px solid #e2e8f0;text-align:right">${peso(pr)}</td>
