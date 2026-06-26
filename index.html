@@ -412,12 +412,12 @@ mark{background:rgba(201,169,110,.15);color:var(--acc);border-radius:2px;padding
     <input class="finp" id="fName" placeholder="Ej: María González">
   </div>
   <div class="frow2">
-    <div><label class="flbl">Teléfono</label><input class="finp" id="fTel" placeholder="11 1234-5678"></div>
-    <div><label class="flbl">Mail</label><input class="finp" id="fMail" placeholder="cliente@email.com" type="email"></div>
+    <div><label class="flbl">Celular *</label><input class="finp" id="fTel" placeholder="1112345678" type="tel" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    <div><label class="flbl">Mail *</label><input class="finp" id="fMail" placeholder="cliente@email.com" type="email"></div>
   </div>
   <div class="frow2">
-    <div><label class="flbl">Dirección</label><input class="finp" id="fDir" placeholder="Av. San Martín 123"></div>
-    <div><label class="flbl">Localidad</label><input class="finp" id="fLoc" placeholder="Pilar, Buenos Aires"></div>
+    <div><label class="flbl">Dirección *</label><input class="finp" id="fDir" placeholder="Av. San Martín 123"></div>
+    <div><label class="flbl">Localidad *</label><input class="finp" id="fLoc" placeholder="Pilar, Buenos Aires"></div>
   </div>
   <div class="frow2">
     <div style="grid-column:1"><label class="flbl">N° de orden</label><input class="finp" id="fOrd" placeholder="B-1504" readonly style="opacity:.7;cursor:default"></div>
@@ -1083,14 +1083,19 @@ function addCartPago(idx){if(!curPago)return;const p=PRODS[idx];const ap=isDoor(
 function openModal(){document.getElementById('fOrd').value='B-'+(++ordN);const fm=document.getElementById('fMode');if(fm)fm.value=curPago?P_MODAL[curPago]:'Sin medio de pago seleccionado';document.getElementById('mbg').classList.add('open')}
 function closeModal(){document.getElementById('mbg').classList.remove('open')}
 function validateModal(){
-  const req=['fName','fTel','fDir','fLoc'];
+  const req=['fName','fTel','fDir','fLoc','fMail'];
   let ok=true;
   req.forEach(id=>{
     const el=document.getElementById(id);
     if(!el.value.trim()){el.style.borderColor='#ef4444';el.style.boxShadow='0 0 0 2px #ef444430';ok=false;}
     else{el.style.borderColor='';el.style.boxShadow='';}
   });
-  if(!ok)showToast('⚠️ Completá todos los campos obligatorios');
+  const telEl=document.getElementById('fTel');
+  const telVal=telEl.value.replace(/\D/g,'');
+  if(telVal.length<10){telEl.style.borderColor='#ef4444';telEl.style.boxShadow='0 0 0 2px #ef444430';ok=false;}
+  const mailEl=document.getElementById('fMail');
+  if(!mailEl.value.includes('@')){mailEl.style.borderColor='#ef4444';mailEl.style.boxShadow='0 0 0 2px #ef444430';ok=false;}
+  if(!ok)showToast('⚠️ Revisá los campos: celular mínimo 10 números, mail con @, y todos los datos completos');
   return ok;
 }
 
