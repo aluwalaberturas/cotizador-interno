@@ -430,11 +430,14 @@ mark{background:rgba(201,169,110,.15);color:var(--acc);border-radius:2px;padding
     <label class="flbl">Observaciones</label>
     <input class="finp" id="fObs" placeholder="Incluye instalación, envío, etc.">
   </div>
+  <div style="display:flex;align-items:center;gap:8px;margin:12px 0 4px;padding:10px 12px;background:#25D36615;border:1px solid #25D36640;border-radius:8px;cursor:pointer" onclick="document.getElementById('fWA').checked=!document.getElementById('fWA').checked">
+    <input type="checkbox" id="fWA" style="width:16px;height:16px;cursor:pointer;accent-color:#25D366">
+    <span style="font-size:12px;font-weight:600;color:#25D366">💬 Enviar por WhatsApp al cliente</span>
+  </div>
   <div class="mbtns">
     <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
     <button class="btn-confirm" onclick="doPrint()">🖨 Solo Estándar</button>
     <button class="btn-confirm" id="btnUnified" onclick="doPrintUnified()" style="background:var(--pur);margin-top:6px">📋 Presupuesto Unificado</button>
-    <button class="btn-confirm" onclick="doWhatsApp()" style="background:#25D366;margin-top:6px">💬 Enviar por WhatsApp</button>
   </div>
 </div>
 </div>
@@ -1191,12 +1194,14 @@ function doPrint(){
       ${obs?'<br>Observaciones: '+obs:''}
     </div>
   </div></body></html>`;
+  const sendWA=document.getElementById('fWA').checked;
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:tot,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | '),obs:obs||''});
   const _pw1=window.open('','_blank');
   _pw1.document.write(_html1);
   _pw1.document.close();
   setTimeout(()=>_pw1.print(),500);
+  if(sendWA)doWhatsApp(name,tel,ord,mode,tot);
 }
 
 // ── PRESUPUESTO UNIFICADO ──
@@ -1337,33 +1342,29 @@ function doPrintUnified(){
   </div>
   </body></html>`;
 
+  const sendWA2=document.getElementById('fWA').checked;
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:totGlobal,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | ')});
   const _pw2=window.open('','_blank');
   _pw2.document.write(html2);
   _pw2.document.close();
   setTimeout(()=>_pw2.print(),500);
+  if(sendWA2)doWhatsApp(name,tel,ord,mode,totGlobal);
 }
 
 // ── WHATSAPP ──
-function doWhatsApp(){
-  if(!validateModal())return;
-  const name=document.getElementById('fName').value.trim();
-  const tel=document.getElementById('fTel').value.trim().replace(/\D/g,'');
-  const ord=document.getElementById('fOrd').value;
-  const mode=curPago||'ef';
-  const tot=cart.reduce((s,c)=>{const pr=c.custom?c.precioUnit:(c.p[mode]??c.p[c.pk]??0);return s+pr*c.qty},0);
+function doWhatsApp(name,tel,ord,mode,tot){
+  const telClean=(tel||'').replace(/\D/g,'');
   const items=cart.map(c=>`• ${buildItemLabel(c)} x${c.qty} — ${peso(c.custom?c.precioUnit:(c.p[mode]??0))}`).join('\n');
   const msg=
 `Hola ${name}! 👋 Te paso el presupuesto *${ord}* de *Aluwal Aberturas*:
 
 ${items}
 
-*Total (${P_SHORT[mode]}): ${peso(tot)}*
+*Total (${P_SHORT[mode]||'Efectivo'}): ${peso(tot)}*
 
 Válido por 7 días. Ante cualquier consulta estamos a tu disposición! 🪟`;
-  const phone='549'+tel;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+  window.open(`https://wa.me/549${telClean}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
 // ── TABS ──
