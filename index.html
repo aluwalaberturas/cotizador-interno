@@ -1043,8 +1043,8 @@ function doPrint(){
     </tr>`;
   }).join('');
 
-  document.getElementById('pa').innerHTML=`
-  <div style="font-family:Arial,sans-serif;color:#111;max-width:800px;margin:0 auto">
+  const _html1=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:10mm;color:#111}@page{size:A4;margin:0}table{border-collapse:collapse;width:100%}@media print{body{padding:8mm}}</style></head><body>
+  <div style="max-width:780px;margin:0 auto">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
       <div style="background:#111;padding:16px 22px;border-radius:6px;min-width:120px">
         <div style="color:#fff;font-size:20px;font-weight:900;letter-spacing:3px">ALUWAL</div>
@@ -1101,11 +1101,13 @@ function doPrint(){
       Los valores no incluyen IVA. &nbsp;·&nbsp; Demora de producción 7/10 días. &nbsp;·&nbsp; Presupuesto válido 7 días.
       ${obs?'<br>Observaciones: '+obs:''}
     </div>
-  </div>`;
-  document.getElementById('pa').style.display='block';
+  </div></body></html>`;
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:tot,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | '),obs:obs||''});
-  setTimeout(()=>{window.print();document.getElementById('pa').style.display='none'},200);
+  const _pw1=window.open('','_blank');
+  _pw1.document.write(_html1);
+  _pw1.document.close();
+  setTimeout(()=>_pw1.print(),500);
 }
 
 // ── PRESUPUESTO UNIFICADO ──
@@ -1245,11 +1247,12 @@ function doPrintUnified(){
   </div>
   </body></html>`;
 
-  document.getElementById('pa').innerHTML=html2;
-  document.getElementById('pa').style.display='block';
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:totGlobal,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | ')});
-  setTimeout(()=>{window.print();document.getElementById('pa').style.display='none'},200);
+  const _pw2=window.open('','_blank');
+  _pw2.document.write(html2);
+  _pw2.document.close();
+  setTimeout(()=>_pw2.print(),500);
 }
 
 // ── TABS ──
