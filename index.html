@@ -1055,6 +1055,7 @@ function doPrint(){
         <div>CUIT: 30-71780744-4</div>
         <div>✉ @aluwal.ar &nbsp;·&nbsp; ☎ 1123948049</div>
         <div>www.aluwalaberturas.com.ar</div>
+        <div style="margin-top:8px;display:inline-block;background:#dc2626;color:#fff;font-size:9px;font-weight:800;letter-spacing:2px;padding:3px 10px;border-radius:3px">GESTIÓN INTERNA</div>
       </div>
     </div>
     <hr style="border:none;border-top:2px solid #111;margin-bottom:20px">
@@ -1103,7 +1104,11 @@ function doPrint(){
   document.getElementById('pa').style.display='block';
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:tot,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | '),obs:obs||''});
-  setTimeout(()=>{window.print();document.getElementById('pa').style.display='none'},200);
+  const _pw1=window.open('','_blank');
+  _pw1.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:12mm 15mm;color:#111}@page{size:A4;margin:0}</style></head><body>${document.getElementById('pa').innerHTML}</body></html>`);
+  _pw1.document.close();
+  document.getElementById('pa').style.display='none';
+  setTimeout(()=>{_pw1.print();},400);
 }
 
 // ── PRESUPUESTO UNIFICADO ──
@@ -1195,8 +1200,8 @@ function doPrintUnified(){
 
   const html2=`<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>
-    body{font-family:Arial,sans-serif;padding:40px;color:#000;}
-    @media print{body{padding:20px}}
+    body{font-family:Arial,sans-serif;padding:12mm 15mm;color:#000;}
+    @page{size:A4;margin:0}
   </style></head><body>
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
     <div style="background:#111;padding:14px 20px;border-radius:6px">
@@ -1208,6 +1213,7 @@ function doPrintUnified(){
       <div>CUIT: 30-71780744-4</div>
       <div>✉ @aluwal.ar &nbsp;·&nbsp; ☎ 1123948049</div>
       <div>www.aluwalaberturas.com.ar</div>
+      <div style="margin-top:8px;display:inline-block;background:#dc2626;color:#fff;font-size:9px;font-weight:800;letter-spacing:2px;padding:3px 10px;border-radius:3px">GESTIÓN INTERNA</div>
     </div>
   </div>
   <hr style="border:none;border-top:2px solid #111;margin-bottom:18px">
@@ -1241,11 +1247,12 @@ function doPrintUnified(){
   </div>
   </body></html>`;
 
-  document.getElementById('pa').innerHTML=html2;
-  document.getElementById('pa').style.display='block';
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:totGlobal,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | ')});
-  setTimeout(()=>{window.print();document.getElementById('pa').style.display='none'},200);
+  const _pw2=window.open('','_blank');
+  _pw2.document.write(html2);
+  _pw2.document.close();
+  setTimeout(()=>{_pw2.print();},400);
 }
 
 // ── TABS ──
