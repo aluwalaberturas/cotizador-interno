@@ -434,6 +434,7 @@ mark{background:rgba(201,169,110,.15);color:var(--acc);border-radius:2px;padding
     <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
     <button class="btn-confirm" onclick="doPrint()">🖨 Solo Estándar</button>
     <button class="btn-confirm" id="btnUnified" onclick="doPrintUnified()" style="background:var(--pur);margin-top:6px">📋 Presupuesto Unificado</button>
+    <button class="btn-confirm" onclick="doWhatsApp()" style="background:#25D366;margin-top:6px">💬 Enviar por WhatsApp</button>
   </div>
 </div>
 </div>
@@ -1342,6 +1343,27 @@ function doPrintUnified(){
   _pw2.document.write(html2);
   _pw2.document.close();
   setTimeout(()=>_pw2.print(),500);
+}
+
+// ── WHATSAPP ──
+function doWhatsApp(){
+  if(!validateModal())return;
+  const name=document.getElementById('fName').value.trim();
+  const tel=document.getElementById('fTel').value.trim().replace(/\D/g,'');
+  const ord=document.getElementById('fOrd').value;
+  const mode=curPago||'ef';
+  const tot=cart.reduce((s,c)=>{const pr=c.custom?c.precioUnit:(c.p[mode]??c.p[c.pk]??0);return s+pr*c.qty},0);
+  const items=cart.map(c=>`• ${buildItemLabel(c)} x${c.qty} — ${peso(c.custom?c.precioUnit:(c.p[mode]??0))}`).join('\n');
+  const msg=
+`Hola ${name}! 👋 Te paso el presupuesto *${ord}* de *Aluwal Aberturas*:
+
+${items}
+
+*Total (${P_SHORT[mode]}): ${peso(tot)}*
+
+Válido por 7 días. Ante cualquier consulta estamos a tu disposición! 🪟`;
+  const phone='549'+tel;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
 // ── TABS ──
