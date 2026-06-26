@@ -630,9 +630,9 @@ window.addEventListener('message',e=>{
   if(!e.data||e.data.type!=='aluwal_cart')return;
   const items=e.data.items||[];
   if(!items.length)return;
-  const pk=curPago||'ef';
+  if(!curPago||curPago!=='ef')setPago('ef');
   items.forEach(it=>{
-    cart.push({custom:true,id:++_custId,label:it.label,tipo:it.tipo,ancho:it.ancho,alto:it.alto,color:it.color,vidrio:it.vidrio,qty:it.cantidad,precioUnit:it.precioUnit,pk});
+    cart.push({custom:true,id:++_custId,label:it.label,tipo:it.tipo,ancho:it.ancho,alto:it.alto,color:it.color,vidrio:it.vidrio,qty:it.cantidad,precioUnit:it.precioUnit,pk:'ef'});
   });
   renderCart();
   goTab('P');
@@ -936,6 +936,14 @@ function renderCart(){
   const tot=cart.reduce((s,c)=>s+(c.custom?c.precioUnit:(c.p[c.pk]||0))*c.qty,0);
   document.getElementById('cTotal').textContent=peso(tot);
   document.getElementById('btnGen').disabled=cart.length===0;
+  const hasCustom=cart.some(c=>c.custom);
+  document.querySelectorAll('.pago-chip').forEach(el=>{
+    const blocked=hasCustom&&el.dataset.pago!=='ef';
+    el.disabled=blocked;
+    el.style.opacity=blocked?'0.3':'';
+    el.style.pointerEvents=blocked?'none':'';
+    el.title=blocked?'No disponible con ítems a medida':'';
+  });
   const cb=document.getElementById('cBody');
   if(!cart.length){cb.innerHTML='<div class="cart-empty">Seleccioná productos<br>para armar el presupuesto</div>';return}
   cb.innerHTML=cart.map(it=>{
