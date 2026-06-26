@@ -622,7 +622,14 @@ async function gsSave(data){
   try{
     const p=new URLSearchParams({action:'save',num:data.num||'',fecha:data.fecha,cliente:data.cliente,tel:data.tel||'',mail:data.mail||'',dir:data.dir||'',modo:data.modo,total:Math.round(data.total),items:(data.items||'').substring(0,500),obs:data.obs||''});
     await fetch(GAS_URL+'?'+p.toString(),{redirect:'follow'});
-  }catch(e){console.warn('Error guardando en Sheets',e);}
+    showToast('✅ Presupuesto '+data.num+' guardado en Sheets');
+  }catch(e){console.warn('Error guardando en Sheets',e);showToast('⚠️ No se pudo guardar en Sheets');}
+}
+function showToast(msg){
+  let t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.opacity='0',3000);
 }
 
 // ── SINCRONIZACIÓN DE PRECIOS DESDE SHEETS ──
@@ -1112,7 +1119,7 @@ function doPrint(){
     </tr>`;
   }).join('');
 
-  const _html1=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:10mm;color:#111}@page{size:A4;margin:0}table{border-collapse:collapse;width:100%}@media print{body{padding:8mm}}</style></head><body>
+  const _html1=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><title>${ord} - ${name}</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:10mm;color:#111}@page{size:A4;margin:0}table{border-collapse:collapse;width:100%}@media print{body{padding:8mm}}</style></head><body>
   <div style="max-width:780px;margin:0 auto">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
       <div style="background:#111;padding:16px 22px;border-radius:6px;min-width:120px">
@@ -1266,7 +1273,7 @@ function doPrintUnified(){
       <div style="text-align:right;padding:10px 12px;font-size:13px;font-weight:700;color:#111">Subtotal: $${(totMed).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
     </div>`:'';
 
-  const html2=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  const html2=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${ord} - ${name}</title>
   <style>
     body{font-family:Arial,sans-serif;padding:12mm 15mm;color:#000;}
     @page{size:A4;margin:0}
