@@ -159,6 +159,20 @@ header{background:#0f0f0f;border-bottom:1px solid var(--brd);padding:0 24px;disp
 .btn-gen:disabled{opacity:.3;cursor:default;box-shadow:none}
 .btn-vaciar{padding:8px;background:transparent;border:1px solid var(--brd);border-radius:7px;color:var(--mut);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
 .btn-vaciar:hover{border-color:var(--red);color:var(--red)}
+.btn-manual-row{display:flex;gap:6px;margin-top:6px}
+.btn-manual{flex:1;padding:7px 4px;background:transparent;border:1px dashed var(--brd);border-radius:6px;color:var(--mut);font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.3px}
+.btn-manual:hover{border-color:var(--acc);color:var(--acc)}
+.manual-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;align-items:center;justify-content:center}
+.manual-modal.open{display:flex}
+.manual-box{background:#1a1a1a;border:1px solid var(--brd);border-radius:12px;padding:22px;width:290px;max-width:90vw}
+.manual-box label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--mut);text-transform:uppercase;margin-bottom:5px;margin-top:12px}
+.manual-box label:first-of-type{margin-top:0}
+.manual-box input{width:100%;background:#111;border:1px solid var(--brd);border-radius:6px;color:var(--txt);font-family:inherit;font-size:13px;padding:8px 10px;outline:none}
+.manual-box input:focus{border-color:var(--acc)}
+.manual-btns{display:flex;gap:8px;margin-top:16px}
+.manual-btns button{flex:1;padding:9px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;border:none}
+.manual-ok{background:var(--acc);color:#0d0d0d}
+.manual-cancel{background:transparent;border:1px solid var(--brd)!important;color:var(--mut)}
 
 /* ── MODAL ── */
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center}
@@ -350,6 +364,10 @@ mark{background:rgba(201,169,110,.15);color:var(--acc);border-radius:2px;padding
       <span class="cart-n" id="cN">0</span>
     </div>
     <div class="cart-body" id="cBody"><div class="cart-empty">Seleccioná productos<br>para armar el presupuesto</div></div>
+    <div class="btn-manual-row">
+      <button class="btn-manual" onclick="openManual('envio')">+ Envío</button>
+      <button class="btn-manual" onclick="openManual('adicional')">+ Adicional</button>
+    </div>
     <div class="cart-ft">
       <div class="total-row">
         <span class="total-lbl">Total estimado</span>
@@ -357,6 +375,25 @@ mark{background:rgba(201,169,110,.15);color:var(--acc);border-radius:2px;padding
       </div>
       <button class="btn-gen" id="btnGen" onclick="openModal()" disabled>🖨 Generar presupuesto</button>
       <button class="btn-vaciar" onclick="clrCart()">Vaciar carrito</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ítems manuales -->
+<div class="manual-modal" id="manualMbg" onclick="if(event.target===this)closeManual()">
+  <div class="manual-box">
+    <div id="manualTitle" style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:14px">Agregar ítem</div>
+    <div id="manualNombreWrap">
+      <label>Descripción</label>
+      <input id="manualNombre" type="text" placeholder="Ej: Picaporte dorado">
+    </div>
+    <label>Cantidad</label>
+    <input id="manualQty" type="number" value="1" min="1">
+    <label>Precio unitario ($)</label>
+    <input id="manualPrecio" type="number" placeholder="0">
+    <div class="manual-btns">
+      <button class="manual-ok" onclick="addManualItem()">Agregar</button>
+      <button class="manual-cancel" onclick="closeManual()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -929,6 +966,30 @@ function clrCart(){cart=[];renderCart()}
 let _custId=0;
 function rmCartCustom(id){cart=cart.filter(c=>!(c.custom&&c.id===id));renderCart();}
 function chgQtyCustom(id,d){const it=cart.find(c=>c.custom&&c.id===id);if(!it)return;it.qty+=d;if(it.qty<=0)rmCartCustom(id);else renderCart();}
+
+let _manualType='';
+function openManual(type){
+  _manualType=type;
+  const isEnvio=type==='envio';
+  document.getElementById('manualTitle').textContent=isEnvio?'Agregar Envío':'Agregar Adicional / Accesorio';
+  const nw=document.getElementById('manualNombreWrap');
+  nw.style.display=isEnvio?'none':'block';
+  document.getElementById('manualNombre').value=isEnvio?'Envío':'';
+  document.getElementById('manualQty').value='1';
+  document.getElementById('manualPrecio').value='';
+  document.getElementById('manualMbg').classList.add('open');
+  setTimeout(()=>document.getElementById(isEnvio?'manualPrecio':'manualNombre').focus(),120);
+}
+function closeManual(){document.getElementById('manualMbg').classList.remove('open');}
+function addManualItem(){
+  const label=document.getElementById('manualNombre').value.trim()||(_manualType==='envio'?'Envío':'Adicional');
+  const qty=Math.max(1,parseInt(document.getElementById('manualQty').value)||1);
+  const precioUnit=parseFloat(String(document.getElementById('manualPrecio').value).replace(/\./g,'').replace(',','.'))||0;
+  if(!precioUnit){document.getElementById('manualPrecio').focus();return;}
+  cart.push({custom:true,id:++_custId,label,tipo:_manualType,ancho:0,alto:0,color:'',vidrio:'',qty,precioUnit,pk:curPago||'ef'});
+  renderCart();
+  closeManual();
+}
 
 function renderCart(){
   const cnt=cart.reduce((s,c)=>s+c.qty,0);
