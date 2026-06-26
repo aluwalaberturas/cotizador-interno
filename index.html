@@ -177,6 +177,7 @@ header{background:#0f0f0f;border-bottom:1px solid var(--brd);padding:0 24px;disp
 .btn-cancel:hover{border-color:var(--brd2)}
 
 /* ── PRINT ── */
+@page{margin:0}
 @media print{
   body *{visibility:hidden!important}
   #pa,#pa *{visibility:visible!important}
@@ -1105,11 +1106,7 @@ function doPrint(){
   document.getElementById('pa').style.display='block';
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:tot,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | '),obs:obs||''});
-  const _pw1=window.open('','_blank');
-  _pw1.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:12mm 15mm;color:#111}@page{size:A4;margin:0}</style></head><body>${document.getElementById('pa').innerHTML}</body></html>`);
-  _pw1.document.close();
-  document.getElementById('pa').style.display='none';
-  setTimeout(()=>{_pw1.print();},400);
+  setTimeout(()=>{window.print();document.getElementById('pa').style.display='none'},200);
 }
 
 // ── PRESUPUESTO UNIFICADO ──
@@ -1212,7 +1209,8 @@ function doPrintUnified(){
     <div style="text-align:right;font-size:12px;line-height:2;color:#475569">
       <div style="font-weight:800;font-size:14px;color:#111">ALUWAL S.R.L.</div>
       <div>CUIT: 30-71780744-4</div>
-      <div>✉ @aluwal.ar &nbsp;·&nbsp; ☎ 1123948049</div>
+      <div>✉ grupoaluwal@gmail.com &nbsp;·&nbsp; info@aluwalaberturas.com</div>
+      <div>☎ 1123948049</div>
       <div>www.aluwalaberturas.com.ar</div>
       <div style="margin-top:8px;display:inline-block;background:#dc2626;color:#fff;font-size:9px;font-weight:800;letter-spacing:2px;padding:3px 10px;border-radius:3px">GESTIÓN INTERNA</div>
     </div>
@@ -1248,12 +1246,11 @@ function doPrintUnified(){
   </div>
   </body></html>`;
 
+  document.getElementById('pa').innerHTML=html2;
+  document.getElementById('pa').style.display='block';
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:totGlobal,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | ')});
-  const _pw2=window.open('','_blank');
-  _pw2.document.write(html2);
-  _pw2.document.close();
-  setTimeout(()=>{_pw2.print();},400);
+  setTimeout(()=>{window.print();document.getElementById('pa').style.display='none'},200);
 }
 
 // ── TABS ──
