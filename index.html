@@ -914,14 +914,14 @@ function clrP(){document.getElementById('sP').value='';refresh('P')}
 function addCartIdx(idx,pk,ap,med){ addCart(PRODS[idx],pk,ap,med); }
 function addCart(p,pk,ap,med){
   const aKey=ap||'';const mKey=med||'';
-  const ex=cart.find(c=>c.p.sku===p.sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey);
+  const ex=cart.find(c=>!c.custom&&c.p.sku===p.sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey);
   if(ex)ex.qty++;else cart.push({p,pk,qty:1,apertura:aKey,medida:mKey});
   renderCart();
 }
-function rmCart(sku,pk,ap,med){const aKey=ap||'';const mKey=med||'';cart=cart.filter(c=>!(c.p.sku===sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey));renderCart()}
+function rmCart(sku,pk,ap,med){const aKey=ap||'';const mKey=med||'';cart=cart.filter(c=>c.custom||!(c.p.sku===sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey));renderCart()}
 function chgQty(sku,pk,ap,med,d){
   const aKey=ap||'';const mKey=med||'';
-  const it=cart.find(c=>c.p.sku===sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey);
+  const it=cart.find(c=>!c.custom&&c.p.sku===sku&&c.pk===pk&&c.apertura===aKey&&c.medida===mKey);
   if(!it)return;it.qty+=d;
   if(it.qty<=0)rmCart(sku,pk,aKey,mKey);else renderCart();
 }
