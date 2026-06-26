@@ -997,9 +997,9 @@ function renderCart(){
   const tot=cart.reduce((s,c)=>s+(c.custom?c.precioUnit:(c.p[c.pk]||0))*c.qty,0);
   document.getElementById('cTotal').textContent=peso(tot);
   document.getElementById('btnGen').disabled=cart.length===0;
-  const hasCustom=cart.some(c=>c.custom);
+  const hasMedida=cart.some(c=>c.custom&&c.tipo!=='envio'&&c.tipo!=='adicional');
   document.querySelectorAll('.pago-chip').forEach(el=>{
-    const blocked=hasCustom&&el.dataset.pago!=='ef';
+    const blocked=hasMedida&&el.dataset.pago!=='ef';
     el.disabled=blocked;
     el.style.opacity=blocked?'0.3':'';
     el.style.pointerEvents=blocked?'none':'';
