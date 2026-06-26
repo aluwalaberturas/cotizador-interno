@@ -1078,9 +1078,21 @@ function addCartPago(idx){if(!curPago)return;const p=PRODS[idx];const ap=isDoor(
 // ── MODAL ──
 function openModal(){document.getElementById('fOrd').value='B-'+(++ordN);const fm=document.getElementById('fMode');if(fm)fm.value=curPago?P_MODAL[curPago]:'Sin medio de pago seleccionado';document.getElementById('mbg').classList.add('open')}
 function closeModal(){document.getElementById('mbg').classList.remove('open')}
+function validateModal(){
+  const req=['fName','fTel','fDir','fLoc'];
+  let ok=true;
+  req.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el.value.trim()){el.style.borderColor='#ef4444';el.style.boxShadow='0 0 0 2px #ef444430';ok=false;}
+    else{el.style.borderColor='';el.style.boxShadow='';}
+  });
+  if(!ok)showToast('⚠️ Completá todos los campos obligatorios');
+  return ok;
+}
 
 // ── PRINT ──
 function doPrint(){
+  if(!validateModal())return;
   const name=document.getElementById('fName').value||'Cliente';
   const tel=document.getElementById('fTel').value;
   const mail=document.getElementById('fMail').value;
@@ -1188,6 +1200,7 @@ function doPrint(){
 
 // ── PRESUPUESTO UNIFICADO ──
 function doPrintUnified(){
+  if(!validateModal())return;
   const name=document.getElementById('fName').value||'Cliente';
   const tel=document.getElementById('fTel').value;
   const mail=document.getElementById('fMail').value;
