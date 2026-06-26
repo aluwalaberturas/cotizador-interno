@@ -106,6 +106,10 @@ header{background:#0f0f0f;border-bottom:1px solid var(--brd);padding:0 24px;disp
 .pr.p1{background:var(--acc-lt)}.pr.p1 .pr-val{color:var(--acc)}
 .pr.cr{background:var(--ylw-lt)}.pr.cr .pr-val{color:var(--ylw)}
 .pr.p1c3{background:var(--pur-lt)}.pr.p1c3 .pr-val{color:var(--pur)}
+.prices-extra{display:none;flex-direction:column;gap:3px;margin-top:3px}
+.prices-extra.open{display:flex}
+.btn-ver-mas{margin-top:4px;background:transparent;border:1px dashed var(--brd);border-radius:6px;color:var(--mut);font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;padding:5px;width:100%;letter-spacing:.3px;transition:all .15s}
+.btn-ver-mas:hover{border-color:var(--acc);color:var(--acc)}
 
 /* add buttons — only in presup mode */
 .add-btns{display:none;flex-direction:column;gap:4px;margin-top:10px}
@@ -898,7 +902,10 @@ function card(p,q,isP){
   if(p.color){const dc=p.color==='Blanco'?'#e2e8f0':'#334155';badges.push(`<span class="badge" style="background:${dc}30;color:var(--txt2);border:1px solid var(--brd)">${p.color}</span>`)}
   const vbadge=p.al_vidrio||p.vidrio;if(vbadge)badges.push(`<span class="badge" style="background:var(--ylw-lt);color:var(--ylw);border:1px solid var(--ylw)30">${vbadge}</span>`);
 
-  const prs=P_KEYS.filter(k=>p[k]!=null).map(k=>`<div class="pr ${P_CLS[k]}"><div class="pr-lbl">${P_SHORT[k]}</div><div class="pr-val">${peso(p[k])}</div></div>`).join('');
+  const mkRow=k=>`<div class="pr ${P_CLS[k]}"><div class="pr-lbl">${P_SHORT[k]}</div><div class="pr-val">${peso(p[k])}</div></div>`;
+  const efRow=p.ef!=null?mkRow('ef'):'';
+  const extraRows=P_KEYS.filter(k=>k!=='ef'&&p[k]!=null).map(mkRow).join('');
+  const prs=efRow+(extraRows?`<div class="prices-extra">${extraRows}</div><button class="btn-ver-mas" onclick="var x=this.previousElementSibling;x.classList.toggle('open');this.textContent=x.classList.contains('open')?'▲ Ocultar precios':'▼ Ver más precios'">▼ Ver más precios</button>`:'');
 
   let addBtns='';
   if(isP){
