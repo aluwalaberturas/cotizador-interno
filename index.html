@@ -375,8 +375,18 @@ mark{background:rgba(201,169,110,.15);color:var(--acc);border-radius:2px;padding
     </div>
     <div class="cart-ft">
       <div class="total-row">
-        <span class="total-lbl">Total estimado</span>
+        <span class="total-lbl">Subtotal</span>
         <span class="total-val" id="cTotal">$0</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin:6px 0 2px">
+        <span style="font-size:11px;font-weight:600;color:var(--mut);flex:1">Descuento</span>
+        <input id="descPct" type="number" min="0" max="100" placeholder="0" oninput="renderCart()" style="width:60px;background:#111;border:1px solid var(--brd);border-radius:6px;color:#fff;font-family:inherit;font-size:12px;padding:4px 6px;outline:none;text-align:center">
+        <span style="font-size:12px;font-weight:700;color:var(--mut)">%</span>
+        <span style="font-size:13px;font-weight:700;color:var(--grn)" id="cDesc"></span>
+      </div>
+      <div class="total-row" id="totalFinalRow" style="display:none">
+        <span class="total-lbl" style="font-weight:800">Total con descuento</span>
+        <span class="total-val" id="cTotalFinal">$0</span>
       </div>
       <button class="btn-gen" id="btnGen" onclick="openModal()" disabled>🖨 Generar presupuesto</button>
       <button class="btn-vaciar" onclick="clrCart()">Vaciar carrito</button>
@@ -1010,11 +1020,17 @@ function addManualItem(){
   closeManual();
 }
 
+function getDesc(subtot){const pct=Math.min(100,Math.max(0,parseFloat(document.getElementById('descPct')?.value)||0));return Math.round(subtot*pct/100);}
 function renderCart(){
   const cnt=cart.reduce((s,c)=>s+c.qty,0);
   document.getElementById('cN').textContent=cnt;
-  const tot=cart.reduce((s,c)=>s+(c.custom?c.precioUnit:(c.p[c.pk]||0))*c.qty,0);
-  document.getElementById('cTotal').textContent=peso(tot);
+  const subtot=cart.reduce((s,c)=>s+(c.custom?c.precioUnit:(c.p[c.pk]||0))*c.qty,0);
+  const desc=getDesc(subtot);
+  const tot=subtot-desc;
+  document.getElementById('cTotal').textContent=peso(subtot);
+  document.getElementById('cDesc').textContent=desc>0?'-'+peso(desc):'';
+  const fr=document.getElementById('totalFinalRow');
+  if(desc>0){fr.style.display='flex';document.getElementById('cTotalFinal').textContent=peso(tot);}else{fr.style.display='none';}
   document.getElementById('btnGen').disabled=cart.length===0;
   const hasMedida=cart.some(c=>c.custom&&c.tipo!=='envio'&&c.tipo!=='adicional');
   document.querySelectorAll('.pago-chip').forEach(el=>{
@@ -1109,7 +1125,10 @@ function doPrint(){
   const today=new Date();
   const exp=new Date(today);exp.setDate(exp.getDate()+7);
   const fmt2=d=>d.toLocaleDateString('es-AR');
-  const tot=cart.reduce((s,c)=>{const pr=c.custom?c.precioUnit:(c.p[mode]??c.p[c.pk]??0);return s+pr*c.qty},0);
+  const subtot=cart.reduce((s,c)=>{const pr=c.custom?c.precioUnit:(c.p[mode]??c.p[c.pk]??0);return s+pr*c.qty},0);
+  const descPct=Math.min(100,Math.max(0,parseFloat(document.getElementById('descPct')?.value)||0));
+  const descMonto=Math.round(subtot*descPct/100);
+  const tot=subtot-descMonto;
   const cuotaNum={c3g:3,tres:3,seis:6,doce:12}[mode]||0;
   const cuotaStr=cuotaNum>1?`<div style="font-size:15px;opacity:.75;margin-top:6px">${cuotaNum} cuotas de ${peso(Math.round(tot/cuotaNum))}</div>`:'';
 
@@ -1176,15 +1195,19 @@ function doPrint(){
         <th style="padding:10px 12px;text-align:right;font-size:10px;letter-spacing:1px">P. TOTAL</th>
       </tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr style="background:#f1f5f9">
-        <td colspan="4" style="padding:12px 12px;text-align:right;border-top:2px solid #111;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase">TOTAL</td>
-        <td style="padding:12px 12px;text-align:right;border-top:2px solid #111;font-size:17px;font-weight:900">${peso(tot)}</td>
-      </tr></tfoot>
+      <tfoot>
+        ${descPct>0?`<tr><td colspan="4" style="padding:8px 12px;text-align:right;font-size:10px;font-weight:600;color:#16a34a">DESCUENTO ${descPct}%</td><td style="padding:8px 12px;text-align:right;font-size:13px;font-weight:700;color:#16a34a">-${peso(descMonto)}</td></tr>`:''}
+        <tr style="background:#f1f5f9">
+          <td colspan="4" style="padding:12px 12px;text-align:right;border-top:2px solid #111;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase">TOTAL</td>
+          <td style="padding:12px 12px;text-align:right;border-top:2px solid #111;font-size:17px;font-weight:900">${peso(tot)}</td>
+        </tr>
+      </tfoot>
     </table>
     <div style="background:#111;color:#fff;padding:18px 22px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div>
         <div style="font-size:10px;letter-spacing:2px;opacity:.5;margin-bottom:4px;text-transform:uppercase">TOTAL — ${modeLabel}</div>
         <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${peso(tot)}</div>
+        ${descPct>0?`<div style="font-size:12px;opacity:.6;margin-top:2px">Descuento ${descPct}% aplicado (${peso(descMonto)})</div>`:''}
         ${cuotaStr}
       </div>
       <div style="text-align:right;font-size:11px;opacity:.5">ALUWAL · aluwalaberturas.com.ar</div>
@@ -1250,7 +1273,10 @@ function doPrintUnified(){
     <td style="padding:9px 12px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700">${peso(c.precioUnit*c.qty)}</td>
   </tr>`).join('');
 
-  const totGlobal=totEst+totMed;
+  const subtotGlobal=totEst+totMed;
+  const descPct2=Math.min(100,Math.max(0,parseFloat(document.getElementById('descPct')?.value)||0));
+  const descMonto2=Math.round(subtotGlobal*descPct2/100);
+  const totGlobal=subtotGlobal-descMonto2;
   const cuotaNum2={c3g:3,tres:3,seis:6,doce:12}[mode]||0;
   const cuotaStr2=cuotaNum2>1?`<div style="font-size:15px;opacity:.75;margin-top:6px">${cuotaNum2} cuotas de ${peso(Math.round(totGlobal/cuotaNum2))}</div>`:'';
   const tieneEst=cartEst.length>0;
@@ -1332,6 +1358,7 @@ function doPrintUnified(){
     <div>
       <div style="font-size:10px;letter-spacing:2px;opacity:.5;margin-bottom:4px;text-transform:uppercase">TOTAL GENERAL — ${modeLabel}</div>
       <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${peso(totGlobal)}</div>
+      ${descPct2>0?`<div style="font-size:12px;opacity:.6;margin-top:2px">Descuento ${descPct2}% aplicado (${peso(descMonto2)})</div>`:''}
       ${cuotaStr2}
     </div>
     <div style="font-size:11px;opacity:.4;letter-spacing:1px">ALUWAL · aluwalaberturas.com.ar</div>
