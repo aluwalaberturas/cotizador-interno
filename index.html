@@ -652,7 +652,7 @@ const PRECIOS_CACHE_TTL=6*3600*1000; // 6 horas
 
 function applyPrecios(map){
   PRODS.forEach(p=>{
-    const pr=map[String(p.sku)];
+    const pr=map[String(p.sku).replace(/\.+$/,'')];
     if(!pr)return;
     if(pr.ef!==null&&pr.ef!==undefined)p.ef=pr.ef;
     if(pr.p1!==null&&pr.p1!==undefined)p.p1=pr.p1;
