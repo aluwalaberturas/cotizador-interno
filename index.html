@@ -623,7 +623,8 @@ let curPago=null;
 let ordN=1525;
 
 // ── GOOGLE SHEETS INTEGRATION ──
-const GAS_URL='https://script.google.com/macros/s/AKfycbxW4EbqAu_LpmhppLibC8OyRw3YikBDHy4uxcXT7km_16PZdLIGGyionDS-CFlFV1EY/exec'; // v12 - agrega endpoint presupuestos para control ventas
+const GAS_URL='https://script.google.com/macros/s/AKfycbxW4EbqAu_LpmhppLibC8OyRw3YikBDHy4uxcXT7km_16PZdLIGGyionDS-CFlFV1EY/exec'; // v12 - save + listPresupuestos
+const GAS_WEB_URL='https://script.google.com/macros/s/AKfycbxCRHrUZVr0T_2yGZE1EGlaJKDq3VvQa49UBrv89a19OPp6Bcg-2C_nJIorlKrFlYGZBQ/exec'; // cotizador web - contador correlativo
 
 async function gsGetNextNum(){
   if(!GAS_URL)return;
@@ -1095,7 +1096,12 @@ function setPago(pk){
 function addCartPago(idx){if(!curPago)return;const p=PRODS[idx];const ap=isDoor(p)?(aperturaMap[idx]||'D'):null;const sizes=getSizes(p);const med=sizes?(medidaMap[idx]||sizes[0]):'';addCartIdx(idx,curPago,ap,med);}
 
 // ── MODAL ──
-function openModal(){document.getElementById('fOrd').value='B-'+(++ordN);const fm=document.getElementById('fMode');if(fm)fm.value=curPago?P_MODAL[curPago]:'Sin medio de pago seleccionado';document.getElementById('mbg').classList.add('open')}
+async function openModal(){
+  document.getElementById('fOrd').value='B-'+(++ordN);
+  const fm=document.getElementById('fMode');if(fm)fm.value=curPago?P_MODAL[curPago]:'Sin medio de pago seleccionado';
+  document.getElementById('mbg').classList.add('open');
+  try{const r=await fetch(GAS_WEB_URL+'?t='+Date.now(),{redirect:'follow'});const d=await r.json();if(d.orden){document.getElementById('fOrd').value=d.orden;ordN=parseInt(d.orden.replace('B-',''));}}catch(e){}
+}
 function closeModal(){document.getElementById('mbg').classList.remove('open')}
 function validateModal(){
   const req=['fName','fTel','fDir','fLoc'];
