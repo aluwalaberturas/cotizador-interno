@@ -644,7 +644,7 @@ async function _guardarInternoEnFirebase(num, cliente, fecha){
   try{
     const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
     const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    const cfg = {apiKey:"AIzaSyCshw1t7OXjTbg8ebvQzLn3VKxbY94cuRI",authDomain:"aluwal-ventas.firebaseapp.com",projectId:"aluwal-ventas",storageBucket:"aluwal-ventas.appspot.com",messagingSenderId:"797982478654",appId:"1:797982478654:web:d78b5c3f8b5c3f8b5c3f8b"};
+    const cfg = {apiKey:"AIzaSyCshw1t7OXjTbg8ebvQzLn3VKxbY94cuRI",authDomain:"aluwal-ventas.firebaseapp.com",projectId:"aluwal-ventas",storageBucket:"aluwal-ventas.firebasestorage.app",messagingSenderId:"1016364782945",appId:"1:1016364782945:web:0eabc4b024666d6e5d2120"};
     const app = getApps().length ? getApps()[0] : initializeApp(cfg);
     const db = getFirestore(app);
     const items = cart.filter(c=>c.custom && c.ancho && c.alto).map(c=>({custom:true, linea:c.linea||'interno', color:c.color||'', tipo:c.tipo||c.label||'', ancho:c.ancho||0, alto:c.alto||0, vidrio:c.vidrio||'', cantidad:c.qty||1, opc:[]}));
