@@ -648,6 +648,7 @@ async function _guardarInternoEnFirebase(num, cliente, fecha){
     const app = getApps().length ? getApps()[0] : initializeApp(cfg);
     const db = getFirestore(app);
     const items = cart.filter(c=>c.custom && c.ancho && c.alto).map(c=>({custom:true, linea:c.linea||'interno', color:c.color||'', tipo:c.tipo||c.label||'', ancho:c.ancho||0, alto:c.alto||0, vidrio:c.vidrio||'', cantidad:c.qty||1, opc:[]}));
+    if(!items.length) return; // no hay ventanas a medida, no hace falta guardar en Firebase
     await setDoc(doc(db,'presupuestos_web', String(num)),{num, fecha, cliente:cliente||'—', items, estado:'presupuesto', origen:'interno'});
   }catch(e){console.warn('Firebase interno:', e);}
 }
