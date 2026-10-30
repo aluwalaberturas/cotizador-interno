@@ -640,6 +640,17 @@ async function gsSave(data){
     showToast('✅ Presupuesto '+data.num+' guardado en Sheets');
   }catch(e){console.warn('Error guardando en Sheets',e);showToast('⚠️ No se pudo guardar en Sheets');}
 }
+async function _guardarInternoEnFirebase(num, cliente, fecha){
+  try{
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const cfg = {apiKey:"AIzaSyCshw1t7OXjTbg8ebvQzLn3VKxbY94cuRI",authDomain:"aluwal-ventas.firebaseapp.com",projectId:"aluwal-ventas",storageBucket:"aluwal-ventas.appspot.com",messagingSenderId:"797982478654",appId:"1:797982478654:web:d78b5c3f8b5c3f8b5c3f8b"};
+    const app = getApps().length ? getApps()[0] : initializeApp(cfg);
+    const db = getFirestore(app);
+    const items = cart.filter(c=>c.custom && c.ancho && c.alto).map(c=>({custom:true, linea:c.linea||'interno', color:c.color||'', tipo:c.tipo||c.label||'', ancho:c.ancho||0, alto:c.alto||0, vidrio:c.vidrio||'', cantidad:c.qty||1, opc:[]}));
+    await setDoc(doc(db,'presupuestos_web', String(num)),{num, fecha, cliente:cliente||'—', items, estado:'presupuesto', origen:'interno'});
+  }catch(e){console.warn('Firebase interno:', e);}
+}
 function showToast(msg){
   let t=document.getElementById('_toast');
   if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s';document.body.appendChild(t);}
@@ -1226,6 +1237,7 @@ function doPrint(){
   const sendWA=document.getElementById('fWA').checked;
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:tot,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | '),obs:obs||''});
+  _guardarInternoEnFirebase(ord, name, fmt2(today));
   const _pw1=window.open('','_blank');
   _pw1.document.write(_html1);
   _pw1.document.close();
@@ -1378,6 +1390,7 @@ function doPrintUnified(){
   const sendWA2=document.getElementById('fWA').checked;
   closeModal();
   gsSave({num:ord,fecha:fmt2(today),cliente:name,tel,mail,dir:dir+(loc?', '+loc:''),modo:modeLabel,total:totGlobal,items:cart.map(c=>`${buildItemLabel(c)} x${c.qty}`).join(' | ')});
+  _guardarInternoEnFirebase(ord, name, fmt2(today));
   const _pw2=window.open('','_blank');
   _pw2.document.write(html2);
   _pw2.document.close();
