@@ -708,7 +708,7 @@ window.addEventListener('message',e=>{
   if(!items.length)return;
   if(!curPago||curPago!=='ef')setPago('ef');
   items.forEach(it=>{
-    cart.push({custom:true,id:++_custId,label:it.label,tipo:it.tipo,ancho:it.ancho,alto:it.alto,color:it.color,vidrio:it.vidrio,qty:it.cantidad,precioUnit:it.precioUnit,pk:'ef'});
+    cart.push({custom:true,id:++_custId,label:it.label,tipo:it.tipo,linea:it.linea,ancho:it.ancho,alto:it.alto,color:it.color,vidrio:it.vidrio,qty:it.cantidad,precioUnit:it.precioUnit,pk:'ef'});
   });
   renderCart();
   goTab('P');
