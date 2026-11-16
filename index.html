@@ -647,7 +647,7 @@ async function _guardarInternoEnFirebase(num, cliente, fecha){
     const cfg = {apiKey:"AIzaSyCshw1t7OXjTbg8ebvQzLn3VKxbY94cuRI",authDomain:"aluwal-ventas.firebaseapp.com",projectId:"aluwal-ventas",storageBucket:"aluwal-ventas.firebasestorage.app",messagingSenderId:"1016364782945",appId:"1:1016364782945:web:0eabc4b024666d6e5d2120"};
     const app = getApps().length ? getApps()[0] : initializeApp(cfg);
     const db = getFirestore(app);
-    const items = cart.filter(c=>c.custom && c.ancho && c.alto).map(c=>({custom:true, linea:c.linea||'interno', color:c.color||'', tipo:c.tipo||c.label||'', ancho:c.ancho||0, alto:c.alto||0, vidrio:c.vidrio||'', cantidad:c.qty||1, opc:[]}));
+    const items = cart.filter(c=>c.custom && c.ancho && c.alto).map(c=>({custom:true, linea:c.linea||'interno', color:c.color||'', tipo:c.tipo||c.label||'', ancho:c.ancho||0, alto:c.alto||0, vidrio:c.vidrio||'', cantidad:c.qty||1, opc:c.opc||[]}));
     if(!items.length) return; // no hay ventanas a medida, no hace falta guardar en Firebase
     await setDoc(doc(db,'presupuestos_web', String(num)),{num, fecha, cliente:cliente||'—', items, estado:'presupuesto', origen:'interno'});
   }catch(e){console.warn('Firebase interno:', e);}
@@ -708,7 +708,7 @@ window.addEventListener('message',e=>{
   if(!items.length)return;
   if(!curPago||curPago!=='ef')setPago('ef');
   items.forEach(it=>{
-    cart.push({custom:true,id:++_custId,label:it.label,tipo:it.tipo,linea:it.linea,ancho:it.ancho,alto:it.alto,color:it.color,vidrio:it.vidrio,qty:it.cantidad,precioUnit:it.precioUnit,pk:'ef'});
+    cart.push({custom:true,id:++_custId,label:it.label,tipo:it.tipo,linea:it.linea,opc:it.opc||[],ancho:it.ancho,alto:it.alto,color:it.color,vidrio:it.vidrio,qty:it.cantidad,precioUnit:it.precioUnit,pk:'ef'});
   });
   renderCart();
   goTab('P');
