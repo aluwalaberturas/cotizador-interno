@@ -693,6 +693,7 @@ async function loadPrecios(){
     const d=await r.json();
     if(d.ok&&d.precios){
       applyPrecios(d.precios);
+      try{refresh('B');refresh('P');renderCart();}catch(e){} // redibuja con precios nuevos
       localStorage.setItem(PRECIOS_CACHE_KEY,JSON.stringify({ts:Date.now(),data:d.precios}));
       console.log('✅ Precios actualizados desde Sheets',d.ts);
     }
