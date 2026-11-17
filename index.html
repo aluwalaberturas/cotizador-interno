@@ -682,12 +682,10 @@ async function loadPrecios(){
   try{
     const cached=localStorage.getItem(PRECIOS_CACHE_KEY);
     if(cached){
+      // muestra al instante los últimos precios conocidos y sigue: siempre consulta el Sheet al abrir
       const obj=JSON.parse(cached);
-      if(Date.now()-obj.ts<PRECIOS_CACHE_TTL){
-        applyPrecios(obj.data);
-        console.log('✅ Precios desde caché local');
-        return;
-      }
+      applyPrecios(obj.data);
+      console.log('✅ Precios desde caché local (actualizando desde Sheets…)');
     }
     const r=await fetch(GAS_URL+'?action=getPrecios&t='+Date.now(),{redirect:'follow'});
     const d=await r.json();
