@@ -103,7 +103,8 @@ header{background:#0f0f0f;border-bottom:1px solid var(--brd);padding:0 24px;disp
 .pr{border-radius:6px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between}
 .pr-lbl{font-size:10px;font-weight:600;letter-spacing:.3px;color:var(--txt2)}
 .pr-val{font-size:14px;font-weight:800;letter-spacing:-.2px}
-.pr.ef{background:var(--grn-lt)}.pr.ef .pr-val{color:var(--grn)}
+.pr.ef{background:#d9ead3}.pr.ef .pr-val{color:#274e13}
+.pr.pk-ef{background:#d9ead3}.pr.pk-ef .pr-val{color:#274e13}.pr.pk-tr{background:#d0eceb}.pr.pk-tr .pr-val{color:#0c5c5c}.pr.pk-deb{background:#cfe2f3}.pr.pk-deb .pr-val{color:#0b5394}.pr.pk-p1{background:#e4dcf3}.pr.pk-p1 .pr-val{color:#351c75}.pr.pk-c3g{background:#fde9d4}.pr.pk-c3g .pr-val{color:#b45f06}.pr.pk-c6g{background:#f9d3ad}.pr.pk-c6g .pr-val{color:#a14d00}.pr.pk-tres{background:#f9dcdc}.pr.pk-tres .pr-val{color:#990000}.pr.pk-seis{background:#f2c4c4}.pr.pk-seis .pr-val{color:#7a0000}.pr.pk-doce{background:#ead1dc}.pr.pk-doce .pr-val{color:#4c1130}
 .pr.p1{background:var(--acc-lt)}.pr.p1 .pr-val{color:var(--acc)}
 .pr.cr{background:var(--ylw-lt)}.pr.cr .pr-val{color:var(--ylw)}
 .pr.p1c3{background:var(--pur-lt)}.pr.p1c3 .pr-val{color:var(--pur)}
@@ -227,10 +228,15 @@ mark{background:rgba(201,169,110,.15);color:var(--acc);border-radius:2px;padding
 .pago-chips{display:flex;gap:6px;flex-wrap:wrap}
 .pago-chip{padding:5px 14px;border-radius:4px;border:1px solid var(--brd);background:transparent;color:var(--txt2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
 .pago-chip:hover{border-color:var(--brd2);color:var(--txt)}
-.pago-chip[data-pago="ef"].active,.pago-chip[data-pago="tr"].active{background:var(--grn-lt);border-color:var(--grn);color:var(--grn);font-weight:700}
-.pago-chip[data-pago="p1"].active,.pago-chip[data-pago="deb"].active{background:var(--acc-lt);border-color:var(--acc);color:var(--acc);font-weight:700}
-.pago-chip[data-pago="c3g"].active,.pago-chip[data-pago="c6g"].active,.pago-chip[data-pago="tres"].active,.pago-chip[data-pago="seis"].active{background:var(--ylw-lt);border-color:var(--ylw);color:var(--ylw);font-weight:700}
-.pago-chip[data-pago="doce"].active{background:var(--pur-lt);border-color:var(--pur);color:var(--pur);font-weight:700}
+.pago-chip[data-pago="ef"].active{background:#d9ead3;border-color:#274e13;color:#274e13;font-weight:700}
+.pago-chip[data-pago="tr"].active{background:#d0eceb;border-color:#0c5c5c;color:#0c5c5c;font-weight:700}
+.pago-chip[data-pago="deb"].active{background:#cfe2f3;border-color:#0b5394;color:#0b5394;font-weight:700}
+.pago-chip[data-pago="p1"].active{background:#e4dcf3;border-color:#351c75;color:#351c75;font-weight:700}
+.pago-chip[data-pago="c3g"].active{background:#fde9d4;border-color:#b45f06;color:#b45f06;font-weight:700}
+.pago-chip[data-pago="c6g"].active{background:#f9d3ad;border-color:#a14d00;color:#a14d00;font-weight:700}
+.pago-chip[data-pago="tres"].active{background:#f9dcdc;border-color:#990000;color:#990000;font-weight:700}
+.pago-chip[data-pago="seis"].active{background:#f2c4c4;border-color:#7a0000;color:#7a0000;font-weight:700}
+.pago-chip[data-pago="doce"].active{background:#ead1dc;border-color:#4c1130;color:#4c1130;font-weight:700}
 .pago-hint{font-size:10px;color:var(--mut);font-style:italic;padding:6px 2px}
 .cart-pago{font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:4px;margin-left:4px}
 /* ── NESTED SIDEBAR ── */
@@ -918,13 +924,11 @@ function filtered(sid){
 const P_KEYS=['ef','tr','deb','p1','c3g','c6g','tres','seis','doce'];
 const P_LABELS={ef:'Efectivo',tr:'Transferencia',deb:'Débito',c6g:'6C Galicia',p1:'1 Pago',c3g:'3C Galicia',tres:'3 Cuotas',seis:'6 Cuotas',doce:'12 Cuotas'};
 const P_MODAL={ef:'Efectivo',tr:'Transferencia bancaria',deb:'Débito',c6g:'6 Cuotas Galicia (sujeto a promoción bancaria)',p1:'Crédito 1 Pago',c3g:'3 Cuotas Galicia (sujeto a promoción bancaria)',tres:'Crédito 3 Cuotas',seis:'Crédito 6 Cuotas',doce:'Crédito 12 Cuotas'};
-const P_CLS={ef:'ef',tr:'ef',deb:'p1',c6g:'cr',p1:'p1',c3g:'cr',tres:'cr',seis:'cr',doce:'cr'};
+const P_CLS={ef:'pk-ef',tr:'pk-tr',deb:'pk-deb',p1:'pk-p1',c3g:'pk-c3g',c6g:'pk-c6g',tres:'pk-tres',seis:'pk-seis',doce:'pk-doce'};
 const P_SHORT={ef:'Efectivo',tr:'Transferencia',deb:'Débito',c6g:'6C Galicia',p1:'1 Pago',c3g:'3C Galicia',tres:'3 Cuotas',seis:'6 Cuotas',doce:'12 Cuotas'};
 
 // chip colors per mode
-const CHIP={ef:'background:var(--grn-lt);color:var(--grn)',tr:'background:var(--grn-lt);color:var(--grn)',deb:'background:var(--acc-lt);color:var(--acc)',c6g:'background:var(--ylw-lt);color:var(--ylw)',p1:'background:var(--acc-lt);color:var(--acc)',
-  c3g:'background:var(--ylw-lt);color:var(--ylw)',tres:'background:var(--ylw-lt);color:var(--ylw)',
-  seis:'background:var(--ylw-lt);color:var(--ylw)',doce:'background:var(--pur-lt);color:var(--pur)'};
+const CHIP={ef:'background:#d9ead3;color:#274e13',tr:'background:#d0eceb;color:#0c5c5c',deb:'background:#cfe2f3;color:#0b5394',p1:'background:#e4dcf3;color:#351c75',c3g:'background:#fde9d4;color:#b45f06',c6g:'background:#f9d3ad;color:#a14d00',tres:'background:#f9dcdc;color:#990000',seis:'background:#f2c4c4;color:#7a0000',doce:'background:#ead1dc;color:#4c1130'};
 
 function peso(v){if(v==null||isNaN(v))return null;return '$'+Math.round(v).toLocaleString('es-AR')}
 function hl(t,q){if(!q)return t;return t.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>')}
